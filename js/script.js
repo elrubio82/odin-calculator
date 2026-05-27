@@ -22,6 +22,14 @@ function power(a, b) {
     return a ** b;
 };
 
+function power2(a) {
+    return a * a;
+};
+
+function sqrt(a) {
+    return Math.sqrt(a);
+};
+
 factorial = function factorial(n) {
     let product = 1;
     for (let i = n; i > 0; i--) {
@@ -53,6 +61,10 @@ function operate(firstOperand, secondOperand, operator) {
             break;
         case "÷": toReturn = divide(firstOperand, secondOperand);
             break;
+        case "√x": toReturn = sqrt(firstOperand);
+            break;
+        case "x²": toReturn = power2(firstOperand);
+            break;
     }
     return Number.isInteger(toReturn) ? toReturn : +roundAndTrim(toReturn, 16);
 }
@@ -67,11 +79,17 @@ document.querySelector(".calculator").addEventListener("click",
     function (event) {
         if (event.target.classList.contains('operand')) {
             let displayContent = document.querySelector(".display").textContent;
-            if (newInput && event.target.textContent.trim() !== ".") {
+            if (newInput && event.target.textContent.trim() !== "." && event.target.textContent.trim() !== "+/−") {
                 document.querySelector(".display").textContent = event.target.textContent.trim();
                 newInput = false;
             } else {
-                if (event.target.textContent.trim() !== "." ||
+                if (event.target.textContent.trim() === "+/−") {
+                    if (document.querySelector(".display").textContent.includes("-")) {
+                        document.querySelector(".display").textContent = document.querySelector(".display").textContent.replace("-", "");
+                    } else {
+                        document.querySelector(".display").textContent = "-" + document.querySelector(".display").textContent;
+                    }
+                } else if (event.target.textContent.trim() !== "." ||
                     (event.target.textContent.trim() === "." && dotClicked === false && newInput === false)) {
                     document.querySelector(".display").textContent = document.querySelector(".display").textContent + event.target.textContent.trim();
                     if (event.target.textContent.trim() === ".") {
@@ -114,17 +132,31 @@ document.querySelector(".calculator").addEventListener("click",
                                 firstOperand = +document.querySelector(".display").textContent;
                                 partialResult = firstOperand;
                                 equalClicked = false;
+                                if (operator === "√x" || operator === "x²") {
+                                    partialResult = operate(partialResult, secondOperand, operator);
+                                    document.querySelector(".display").textContent = partialResult;
+                                    equalClicked = true;
+                                }
                             } else {
                                 secondOperand = +document.querySelector(".display").textContent;
                                 partialResult = operate(firstOperand, secondOperand, operator);
-                                document.querySelector(".display").textContent = partialResult;
                                 operator = event.target.textContent.trim();
+                                if (operator === "√x" || operator === "x²") {
+                                    partialResult = operate(partialResult, secondOperand, operator);
+                                    equalClicked = true;
+                                }
+                                document.querySelector(".display").textContent = partialResult;
                                 firstOperand = partialResult;
                             }
                         }
                     } else {
                         operator = event.target.textContent.trim();
                         firstOperand = +document.querySelector(".display").textContent;
+                        if (operator === "√x" || operator === "x²") {
+                            firstOperand = operate(firstOperand, secondOperand, operator);
+                            document.querySelector(".display").textContent = firstOperand;
+                            equalClicked = true;
+                        }
                         partialResult = firstOperand;
                     }
                 }
